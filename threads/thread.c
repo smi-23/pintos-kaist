@@ -625,14 +625,18 @@ void thread_sleep(int64_t ticks)
 void thread_wake()
 {
 	int64_t curr_ticks = timer_ticks();
+	struct thread *thread_to_getup;
+	struct list_elem *front;
+
 	while (!list_empty(&sleep_list))
 	{
-		struct thread *thread_to_getup;
-		thread_to_getup = list_entry(list_front(&sleep_list), struct thread, elem);
+		front = list_front(&sleep_list);
+		
+		thread_to_getup = list_entry(front, struct thread, elem);
 	
 		if (curr_ticks < thread_to_getup->sleep_ticks)
 			return;
-		list_pop_front(&sleep_list);
+		list_remove(front);
 		thread_unblock(thread_to_getup);
 	}
 }
