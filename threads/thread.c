@@ -54,6 +54,8 @@ static unsigned thread_ticks; /* # of timer ticks since last yield. */
    If true, use multi-level feedback queue scheduler.
    Controlled by kernel command-line option "-o mlfqs". */
 bool thread_mlfqs;
+bool priority_desc(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);
+bool less (const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);
 
 static void kernel_thread(thread_func *, void *aux);
 
@@ -206,6 +208,9 @@ tid_t thread_create(const char *name, int priority,
 
 	/* Add to run queue. */
 	thread_unblock(t);
+	if (priority > thread_current()->priority)
+	thread_yield();
+	
 
 	return tid;
 }
@@ -240,7 +245,7 @@ void thread_unblock(struct thread *t)
 
 	old_level = intr_disable();
 	ASSERT(t->status == THREAD_BLOCKED);
-	list_push_back(&ready_list, &t->elem);
+	list_insert_ordered(&ready_list, &t->elem, priority_desc, NULL);
 	t->status = THREAD_READY;
 	intr_set_level(old_level);
 }
@@ -305,7 +310,7 @@ void thread_yield(void)
 
 	old_level = intr_disable();
 	if (curr != idle_thread)
-		list_push_back(&ready_list, &curr->elem);
+		list_insert_ordered(&ready_list, &curr->elem, priority_desc, NULL);
 	do_schedule(THREAD_READY);
 	intr_set_level(old_level);
 }
@@ -314,6 +319,8 @@ void thread_yield(void)
 void thread_set_priority(int new_priority)
 {
 	thread_current()->priority = new_priority;
+	if(list_entry(list_front(&ready_list), struct thread, elem)->priority > thread_current()->priority)
+		thread_yield();
 }
 
 /* Returns the current thread's priority. */
@@ -601,7 +608,17 @@ allocate_tid(void)
 	return tid;
 }
 
-bool less(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
+bool
+priority_desc(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
+{
+	struct thread *a_thread = list_entry(a, struct thread, elem);
+	struct thread *b_thread = list_entry(b, struct thread, elem);
+
+	return a_thread->priority > b_thread->priority;
+}
+
+bool
+less(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
 {
 	struct thread *a_thread = list_entry(a, struct thread, elem);
 	struct thread *b_thread = list_entry(b, struct thread, elem);
