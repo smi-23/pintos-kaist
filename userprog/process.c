@@ -172,6 +172,7 @@ process_exec (void *f_name) {
 		argv[argc] = token;
 		argc++;
 	}
+	printf("호영이 띠발넘%s\n\n", argv[0]);
 
 	/* We cannot use the intr_frame in the thread structure.
 	 * This is because when current thread rescheduled,

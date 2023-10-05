@@ -10,11 +10,11 @@
 # # pintos -- -q run priority-preempt
 # # pintos -- -q run priority-fifo
 # pintos -- -q run priority-donate-sema
-# cd userprog
-# make clean
-# make -j $(nproc --all)
-# cd build
-# pintos-mkdisk filesys.dsk 10
-# # pintos --fs-disk filesys.dsk -p tests/userprog/args-single:args-single -- -q -f run 'args-single onearg'
-# pintos --fs-disk filesys.dsk -p tests/userprog/args-single:args-single -- -f run 'args-single onearg'
-# # pintos --fs-disk filesys.dsk -p tests/userprog/args-single:args-single --gdb -- -f run 'args-single onearg'
+cd userprog
+make clean
+make -j $(nproc --all)
+cd build
+pintos-mkdisk filesys.dsk 10
+# pintos --fs-disk filesys.dsk -p tests/userprog/args-single:args-single -- -q -f run 'args-single onearg'
+pintos --fs-disk filesys.dsk -p tests/userprog/args-single:args-single -- -f run 'args-single onearg'
+# pintos --fs-disk filesys.dsk -p tests/userprog/args-single:args-single --gdb -- -f run 'args-single onearg'
